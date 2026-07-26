@@ -2,6 +2,7 @@
 import ftplib
 import json
 import datetime
+import os
 from io import BytesIO
 
 from paho.mqtt import publish
@@ -10,6 +11,7 @@ from metar import Metar
 STATION = "KEWR"
 FTP_SERVER = "tgftp.nws.noaa.gov"
 FTP_PATH = f"/data/observations/metar/stations/{STATION}.TXT"
+MQTT_HOST = os.environ.get("MQTT_HOST", "krypton")
 
 with ftplib.FTP(FTP_SERVER) as ftp:
     ftp.login()
@@ -55,4 +57,4 @@ payload = {
     "wind_speed_peak_mph": value(metar_data.wind_speed_peak, "MPH"),
 }
 
-publish.single(f"metar/observation/{metar_data.station_id}", json.dumps(payload), hostname="sodium")
+publish.single(f"metar/observation/{metar_data.station_id}", json.dumps(payload), hostname=MQTT_HOST)
